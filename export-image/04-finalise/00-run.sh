@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-USER=${FIRST_USER_NAME}
+on_chroot <<SELLEOF
 
 disable_raspi_config_at_boot() {
   if [ -e /etc/profile.d/raspi-config.sh ]; then
@@ -19,15 +19,15 @@ do_enable_autologin() {
         cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf << EOF
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin ${USER} --noclear %I \$TERM
+ExecStart=-/sbin/agetty --autologin ${FIRST_USER_NAME} --noclear %I \$TERM
 EOF
-        sed /etc/lightdm/lightdm.conf -i -e "s/^\(#\|\)autologin-user=.*/autologin-user=${USER}/"
+        sed /etc/lightdm/lightdm.conf -i -e "s/^\(#\|\)autologin-user=.*/autologin-user=${FIRST_USER_NAME}/"
         disable_raspi_config_at_boot
     fi
 }
 
 do_config_xsession() {
-    cat > /home/${USER}/.Xsession << EOF
+    cat > /home/${FIRST_USER_NAME}/.Xsession << EOF
 xset s off
 xset -dpms
 xset s noblank
@@ -46,3 +46,5 @@ run() {
 }
 
 run
+
+SELLEOF
